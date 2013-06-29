@@ -29,7 +29,7 @@ NSURL *url = [NSURL URLWithString:@"http://newleaderscouncil.org/sanfrancisco/wp
 
 And that's it. The ImageCache will check the Cache and pull the UIImage saved in it OR it will go to the web, download the image and set it after it's done downloading.
 
-** UITableView**
+**UITableView**
 
 Since UITableViews are a little bit different paradigm than a static UIImageView, this is a little bit different as well. In your <code>tableView:cellForRowAtIndexPath:</code> method where you have an image you want to portray, set up your code similar to this:
 
@@ -39,3 +39,7 @@ cell.imageView.image = [[ImageCache sharedCache] imageForURLPath:@"http://newlea
 ```
 
 Doing this will set each image if it exists in the cache, or reload the tableView whenever it loads one of the images that appear in a cell.
+
+## License ##
+
+This repository is licensed under the standard MIT License.
