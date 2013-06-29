@@ -12,33 +12,33 @@ A shared cache class that loads/saves UIImages from the web to a Key/Value store
 
 ImageCache is super, super straightforward and easy to use. Right now it handles two cases for setting UIImages: UIImageView and UITableView. Follow along for loading your images.
 
-**UIImageView**
+**UIImageView/UIButton**
 
 You only need two things here, a UIImageView and a URL for an image. To lazily load your image URL into the UIImageView without blocking the UI thread, your code will look something like this:
 
 ```objc
-// Your Image View
+// Your Image View or Button
 UIImageView *imgView;
 
 // Your Image URL
 NSURL *url = [NSURL URLWithString:@"http://newleaderscouncil.org/sanfrancisco/wp-content/uploads/2013/01/1.jpg"];
 
-// Loading that URL into your imgView
+// Loading that URL into your imgView/button
 [[ImageCache sharedCache] setImageAtURL:[NSURL URLWithString:@"http://newleaderscouncil.org/sanfrancisco/wp-content/uploads/2013/01/1.jpg"] forUIElement:imgView];
 ```
 
 And that's it. The ImageCache will check the Cache and pull the UIImage saved in it OR it will go to the web, download the image and set it after it's done downloading.
 
-**UITableView**
+**UITableView/UICollectionView**
 
-Since UITableViews are a little bit different paradigm than a static UIImageView, this is a little bit different as well. In your <code>tableView:cellForRowAtIndexPath:</code> method where you have an image you want to portray, set up your code similar to this:
+Since UITableViews/UICollectionViews are a little bit different paradigm than a static UIImageView, this is a little bit different as well. In your <code>tableView:cellForRowAtIndexPath:</code> method where you have an image you want to portray, set up your code similar to this:
 
 ```objc
 cell.imageView.image = [[ImageCache sharedCache] imageForURLPath:@"http://newleaderscouncil.org/sanfrancisco/wp-content/uploads/2013/01/1.jpg"];
 [[ImageCache sharedCache] setImageAtURL:[NSURL URLWithString:@"http://newleaderscouncil.org/sanfrancisco/wp-content/uploads/2013/01/1.jpg"] forUIElement:tableView];
 ```
 
-Doing this will set each image if it exists in the cache, or reload the tableView whenever it loads one of the images that appear in a cell.
+Doing this will set each image if it exists in the cache, or reload the tableView/collectionView whenever it loads one of the images that appear in a cell.
 
 ## License ##
 
