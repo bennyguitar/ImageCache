@@ -102,6 +102,12 @@ static ImageCache * _sharedCache = nil;
         else if ([element isKindOfClass:[UITableView class]]) {
             [(UITableView *)element reloadData];
         }
+        else if ([element isKindOfClass:[UICollectionView class]]) {
+            [(UICollectionView *)element reloadData];
+        }
+        else if ([element isKindOfClass:[UIButton class]]) {
+            [(UIButton *)element setImage:image forState:UIControlStateNormal];
+        }
     }
 }
 
