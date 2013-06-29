@@ -8,6 +8,8 @@
 
 #import "ImageCache.h"
 
+#define kTimeOutInterval 15
+
 @implementation ImageCache
 static ImageCache * _sharedCache = nil;
 
@@ -41,6 +43,7 @@ static ImageCache * _sharedCache = nil;
 	return self;
 }
 
+#pragma mark - Set Image method
 -(void)setImageAtURL:(NSURL *)url forUIElement:(id)element {
     if (self.ImageDictionary) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
@@ -52,27 +55,46 @@ static ImageCache * _sharedCache = nil;
             }
             else {
                 // Image doesn't exist.
-                // Load from Web, Set Cache, return Image
+                // Let's load it from the Web
+                NSURLResponse *response;
+                NSError *error;
+                NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:NSURLCacheStorageAllowedInMemoryOnly timeoutInterval:kTimeOutInterval];
                 
+                // Start the request
+                NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
                 
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self setImage:self.ImageDictionary[url.path] forUIElement:element];
-                });
+                if (responseData) {
+                    // We got data!
+                    UIImage *image = [[UIImage alloc] initWithData:responseData];
+                    if (image) {
+                        // Set into Cache
+                        [self.ImageDictionary setObject:image forKey:url.path];
+                        // Update UI Element
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [self setImage:image forUIElement:element];
+                        });
+                    }
+                }
             }
         });
     }
 }
 
+#pragma mark - Private Helper
 -(void)setImage:(UIImage *)image forUIElement:(id)element {
     if ([element isKindOfClass:[UIImageView class]]) {
-        UIImageView *imgView = (UIImageView *)element;
-        imgView.image = image;
+        [(UIImageView *)element setImage:image];
     }
     else if ([element isKindOfClass:[UITableView class]]) {
-        
+        [(UITableView *)element reloadData];
     }
 }
 
+
+#pragma mark - Dump Cache
+-(void)dumpCache {
+    self.ImageDictionary = [@{} mutableCopy];
+}
 
 
 

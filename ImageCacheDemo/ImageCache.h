@@ -13,5 +13,7 @@
 @property (nonatomic, retain) NSMutableDictionary *ImageDictionary;
 
 +(ImageCache*)sharedCache;
+-(void)setImageAtURL:(NSURL *)url forUIElement:(id)element;
+-(void)dumpCache;
 
 @end
