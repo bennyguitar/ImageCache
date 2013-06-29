@@ -7,7 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "ImageCache.h"
 
 @interface ViewController : UIViewController
+
+@property (weak, nonatomic) IBOutlet UIImageView *mainImageView;
+
+- (IBAction)loadImage:(id)sender;
 
 @end

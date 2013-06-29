@@ -4,6 +4,7 @@
 //
 //  Created by Benjamin Gordon on 6/29/13.
 //  Copyright (c) 2013 Benjamin Gordon. All rights reserved.
+//  This class is based off of ideas/discussions with @MatthewYork
 //
 
 #import "ImageCache.h"
@@ -80,13 +81,27 @@ static ImageCache * _sharedCache = nil;
     }
 }
 
+#pragma mark - Getting the Image w/o setting a UIElement
+-(UIImage *)imageForURLPath:(NSString *)path {
+    if (self.ImageDictionary[path]) {
+        return self.ImageDictionary[path];
+    }
+    else {
+        [self setImageAtURL:[NSURL URLWithString:path] forUIElement:nil];
+        return nil;
+    }
+}
+
+
 #pragma mark - Private Helper
 -(void)setImage:(UIImage *)image forUIElement:(id)element {
-    if ([element isKindOfClass:[UIImageView class]]) {
-        [(UIImageView *)element setImage:image];
-    }
-    else if ([element isKindOfClass:[UITableView class]]) {
-        [(UITableView *)element reloadData];
+    if (element && image) {
+        if ([element isKindOfClass:[UIImageView class]]) {
+            [(UIImageView *)element setImage:image];
+        }
+        else if ([element isKindOfClass:[UITableView class]]) {
+            [(UITableView *)element reloadData];
+        }
     }
 }
 
