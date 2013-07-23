@@ -25,6 +25,11 @@
 @end
 
 
+@interface UIButton (ImageCache)
+-(void)setImageFromURL:(NSURL *)url forState:(UIControlState)state;
+@end
+
+
 @interface ICOperation : NSOperation
 @property (nonatomic, retain) UIImage *responseImage;
 @property (nonatomic, retain) NSURL *url;

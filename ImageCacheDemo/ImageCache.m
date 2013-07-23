@@ -96,6 +96,39 @@ static ImageCache * _sharedCache = nil;
 
 @end
 
+
+#pragma mark - UIButton Category
+@implementation UIButton (ImageCache)
+
+-(void)setImageFromURL:(NSURL *)url forState:(UIControlState)state {
+    if ([ImageCache imageForKey:url.absoluteString]) {
+        [self setImage:[ImageCache imageForKey:url.absoluteString] forState:state];
+    }
+    else {
+        ICOperation *operation = [[ICOperation alloc] init];
+        __weak ICOperation *weakOp = operation;
+        [operation setURL:url completion:^{
+            if (weakOp.responseImage) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    // Success
+                    [self setImage:weakOp.responseImage forState:state];
+                    [ImageCache setImage:weakOp.responseImage forKey:url.absoluteString];
+                });
+            }
+            else {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    // Failed
+                    NSLog(@"Add Loading Image, or Failed to Load image here!");
+                });
+            }
+        }];
+        [ImageCache addOperation:operation];
+    }
+}
+
+@end
+
+
 #pragma mark - NSOperation Subclass
 @implementation ICOperation
 
