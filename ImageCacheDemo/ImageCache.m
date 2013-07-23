@@ -11,6 +11,7 @@
 
 #define kTimeOutInterval 15
 #define kMaxConnections 5
+#define kLoadingImage [UIImage imageNamed:@"loading_thumbnail-01.png"]
 
 @implementation ImageCache
 static ImageCache * _sharedCache = nil;
@@ -74,6 +75,7 @@ static ImageCache * _sharedCache = nil;
         self.image = [ImageCache imageForKey:url.absoluteString];
     }
     else {
+        self.image = kLoadingImage;
         ICOperation *operation = [[ICOperation alloc] init];
         __weak ICOperation *weakOp = operation;
         [operation setURL:url completion:^{
@@ -106,6 +108,7 @@ static ImageCache * _sharedCache = nil;
         [self setImage:[ImageCache imageForKey:url.absoluteString] forState:state];
     }
     else {
+        [self setImage:kLoadingImage forState:state];
         ICOperation *operation = [[ICOperation alloc] init];
         __weak ICOperation *weakOp = operation;
         [operation setURL:url completion:^{

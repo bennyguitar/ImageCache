@@ -10,6 +10,8 @@
 #import "ImageCache.h"
 
 #define kTimeOutInterval 15
+#define kMaxConnections 5
+#define kLoadingImage [UIImage imageNamed:@"loading_thumbnail-01.png"]
 
 @implementation ImageCache
 static ImageCache * _sharedCache = nil;
@@ -38,7 +40,7 @@ static ImageCache * _sharedCache = nil;
 	if (self != nil) {
         self.ImageDictionary = [@{} mutableCopy];
         self.ImageOperationQueue = [[NSOperationQueue alloc] init];
-        [self.ImageOperationQueue setMaxConcurrentOperationCount:5];
+        [self.ImageOperationQueue setMaxConcurrentOperationCount:kMaxConnections];
     }
 	return self;
 }
@@ -73,6 +75,7 @@ static ImageCache * _sharedCache = nil;
         self.image = [ImageCache imageForKey:url.absoluteString];
     }
     else {
+        self.image = kLoadingImage;
         ICOperation *operation = [[ICOperation alloc] init];
         __weak ICOperation *weakOp = operation;
         [operation setURL:url completion:^{
@@ -96,6 +99,40 @@ static ImageCache * _sharedCache = nil;
 
 @end
 
+
+#pragma mark - UIButton Category
+@implementation UIButton (ImageCache)
+
+-(void)setImageFromURL:(NSURL *)url forState:(UIControlState)state {
+    if ([ImageCache imageForKey:url.absoluteString]) {
+        [self setImage:[ImageCache imageForKey:url.absoluteString] forState:state];
+    }
+    else {
+        [self setImage:kLoadingImage forState:state];
+        ICOperation *operation = [[ICOperation alloc] init];
+        __weak ICOperation *weakOp = operation;
+        [operation setURL:url completion:^{
+            if (weakOp.responseImage) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    // Success
+                    [self setImage:weakOp.responseImage forState:state];
+                    [ImageCache setImage:weakOp.responseImage forKey:url.absoluteString];
+                });
+            }
+            else {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    // Failed
+                    NSLog(@"Add Loading Image, or Failed to Load image here!");
+                });
+            }
+        }];
+        [ImageCache addOperation:operation];
+    }
+}
+
+@end
+
+
 #pragma mark - NSOperation Subclass
 @implementation ICOperation
 
@@ -106,7 +143,7 @@ static ImageCache * _sharedCache = nil;
 
 -(void)main {
     NSError *error;
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:self.url cachePolicy:NSURLCacheStorageAllowedInMemoryOnly timeoutInterval:10];
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:self.url cachePolicy:NSURLCacheStorageAllowedInMemoryOnly timeoutInterval:kTimeOutInterval];
     NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] init];
     UIImage *image = [UIImage imageWithData:[NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error]];
     if (image) {
