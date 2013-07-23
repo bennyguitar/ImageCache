@@ -14,8 +14,8 @@ ImageCache is super, super straightforward and easy to use. Right now it handles
 
 ```objc
 // Your UIImageView and UIButton
-UIImageView *imgView;
-UIButton *btn;
+UIImageView *imgView = [[UIImageView alloc] init];
+UIButton *btn = [[UIButton alloc] init];
 
 // Your Image URL
 NSURL *url = [NSURL URLWithString:@"http://newleaderscouncil.org/sanfrancisco/wp-content/uploads/2013/01/1.jpg"];
