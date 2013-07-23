@@ -10,12 +10,23 @@
 #import <Foundation/Foundation.h>
 
 @interface ImageCache : NSObject
-
 @property (nonatomic, retain) NSMutableDictionary *ImageDictionary;
-
+@property (nonatomic, retain) NSOperationQueue *ImageOperationQueue;
 +(ImageCache*)sharedCache;
--(void)setImageAtURL:(NSURL *)url forUIElement:(id)element;
--(UIImage *)imageForURLPath:(NSString *)path;
--(void)dumpCache;
++(UIImage *)imageForKey:(NSString *)key;
++(void)setImage:(UIImage *)image forKey:(NSString *)key;
++(void)addOperation:(NSOperation *)operation;
++(void)dumpCache;
+@end
 
+
+@interface UIImageView (ImageCache)
+-(void)setImageFromURL:(NSURL *)url;
+@end
+
+
+@interface ICOperation : NSOperation
+@property (nonatomic, retain) UIImage *responseImage;
+@property (nonatomic, retain) NSURL *url;
+-(void)setURL:(NSURL *)url completion:(void (^)(void))block;
 @end

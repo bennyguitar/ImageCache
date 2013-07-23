@@ -21,7 +21,6 @@ static ImageCache * _sharedCache = nil;
         }
 		return _sharedCache;
 	}
-	
 	return nil;
 }
 
@@ -31,7 +30,6 @@ static ImageCache * _sharedCache = nil;
 		_sharedCache = [super alloc];
 		return _sharedCache;
 	}
-	
 	return nil;
 }
 
@@ -39,84 +37,81 @@ static ImageCache * _sharedCache = nil;
 	self = [super init];
 	if (self != nil) {
         self.ImageDictionary = [@{} mutableCopy];
-	}
-	
+        self.ImageOperationQueue = [[NSOperationQueue alloc] init];
+        [self.ImageOperationQueue setMaxConcurrentOperationCount:5];
+    }
 	return self;
 }
 
-#pragma mark - Set Image method
--(void)setImageAtURL:(NSURL *)url forUIElement:(id)element {
-    if (self.ImageDictionary) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-            if (self.ImageDictionary[url.path]) {
-                // Image already exists
++(UIImage *)imageForKey:(NSString *)key {
+    if ([ImageCache sharedCache].ImageDictionary[key]) {
+        return [ImageCache sharedCache].ImageDictionary[key];
+    }
+    return nil;
+}
+
++(void)setImage:(UIImage *)image forKey:(NSString *)key {
+    [[ImageCache sharedCache].ImageDictionary setObject:image forKey:key];
+}
+
++(void)addOperation:(NSOperation *)operation {
+    [[ImageCache sharedCache].ImageOperationQueue addOperation:operation];
+}
+
++(void)dumpCache {
+    [ImageCache sharedCache].ImageDictionary = [@{} mutableCopy];
+}
+
+@end
+
+
+#pragma mark - UIImageView Category
+@implementation UIImageView (ImageCache)
+
+-(void)setImageFromURL:(NSURL *)url {
+    if ([ImageCache imageForKey:url.absoluteString]) {
+        self.image = [ImageCache imageForKey:url.absoluteString];
+    }
+    else {
+        ICOperation *operation = [[ICOperation alloc] init];
+        __weak ICOperation *weakOp = operation;
+        [operation setURL:url completion:^{
+            if (weakOp.responseImage) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self setImage:self.ImageDictionary[url.path] forUIElement:element];
+                    // Success
+                    self.image = weakOp.responseImage;
+                    [ImageCache setImage:weakOp.responseImage forKey:url.absoluteString];
                 });
             }
             else {
-                // Image doesn't exist.
-                // Let's load it from the Web
-                NSURLResponse *response;
-                NSError *error;
-                NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:NSURLCacheStorageAllowedInMemoryOnly timeoutInterval:kTimeOutInterval];
-                
-                // Start the request
-                NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
-                
-                if (responseData) {
-                    // We got data!
-                    UIImage *image = [[UIImage alloc] initWithData:responseData];
-                    if (image) {
-                        // Set into Cache
-                        [self.ImageDictionary setObject:image forKey:url.path];
-                        // Update UI Element
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            [self setImage:image forUIElement:element];
-                        });
-                    }
-                }
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    // Failed
+                    NSLog(@"Add Loading Image, or Failed to Load image here!");
+                });
             }
-        });
+        }];
+        [ImageCache addOperation:operation];
     }
 }
 
-#pragma mark - Getting the Image w/o setting a UIElement
--(UIImage *)imageForURLPath:(NSString *)path {
-    if (self.ImageDictionary[path]) {
-        return self.ImageDictionary[path];
-    }
-    else {
-        [self setImageAtURL:[NSURL URLWithString:path] forUIElement:nil];
-        return nil;
-    }
+@end
+
+#pragma mark - NSOperation Subclass
+@implementation ICOperation
+
+-(void)setURL:(NSURL *)url completion:(void (^)(void))block {
+    self.url = url;
+    self.completionBlock = block;
 }
 
-
-#pragma mark - Private Helper
--(void)setImage:(UIImage *)image forUIElement:(id)element {
-    if (element && image) {
-        if ([element isKindOfClass:[UIImageView class]]) {
-            [(UIImageView *)element setImage:image];
-        }
-        else if ([element isKindOfClass:[UITableView class]]) {
-            [(UITableView *)element reloadData];
-        }
-        else if ([element isKindOfClass:[UICollectionView class]]) {
-            [(UICollectionView *)element reloadData];
-        }
-        else if ([element isKindOfClass:[UIButton class]]) {
-            [(UIButton *)element setImage:image forState:UIControlStateNormal];
-        }
+-(void)main {
+    NSError *error;
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:self.url cachePolicy:NSURLCacheStorageAllowedInMemoryOnly timeoutInterval:10];
+    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] init];
+    UIImage *image = [UIImage imageWithData:[NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error]];
+    if (image) {
+        self.responseImage = image;
     }
 }
-
-
-#pragma mark - Dump Cache
--(void)dumpCache {
-    self.ImageDictionary = [@{} mutableCopy];
-}
-
-
 
 @end

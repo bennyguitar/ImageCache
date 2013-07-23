@@ -27,7 +27,7 @@
 }
 
 - (IBAction)loadImage:(id)sender {
-    [[ImageCache sharedCache] setImageAtURL:[NSURL URLWithString:@"http://newleaderscouncil.org/sanfrancisco/wp-content/uploads/2013/01/1.jpg"] forUIElement:self.mainImageView];
+    [self.mainImageView setImageFromURL:[NSURL URLWithString:@"http://newleaderscouncil.org/sanfrancisco/wp-content/uploads/2013/01/1.jpg"]];
 }
 
 
