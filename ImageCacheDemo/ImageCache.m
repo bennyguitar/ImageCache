@@ -139,7 +139,7 @@ static ImageCache * _sharedCache = nil;
 
 -(void)main {
     NSError *error;
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:self.url cachePolicy:NSURLCacheStorageAllowedInMemoryOnly timeoutInterval:10];
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:self.url cachePolicy:NSURLCacheStorageAllowedInMemoryOnly timeoutInterval:kTimeOutInterval];
     NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] init];
     UIImage *image = [UIImage imageWithData:[NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error]];
     if (image) {
