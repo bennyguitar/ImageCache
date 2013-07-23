@@ -10,6 +10,7 @@
 #import "ImageCache.h"
 
 #define kTimeOutInterval 15
+#define kMaxConnections 5
 
 @implementation ImageCache
 static ImageCache * _sharedCache = nil;
@@ -38,7 +39,7 @@ static ImageCache * _sharedCache = nil;
 	if (self != nil) {
         self.ImageDictionary = [@{} mutableCopy];
         self.ImageOperationQueue = [[NSOperationQueue alloc] init];
-        [self.ImageOperationQueue setMaxConcurrentOperationCount:5];
+        [self.ImageOperationQueue setMaxConcurrentOperationCount:kMaxConnections];
     }
 	return self;
 }
