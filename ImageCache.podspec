@@ -5,7 +5,7 @@ Pod::Spec.new do |s|
   s.homepage     = "https://github.com/bennyguitar/ImageCache"
   s.license      = { :type => 'MIT', :file => 'LICENSE' }
   s.author       = { "BenGordon" => "brgordon@ua.edu" }
-  s.source       = { :git => "https://github.com/bennyguitar/ImageCache.git", :tag => "v1.0" }
+  s.source       = { :git => "https://github.com/bennyguitar/ImageCache.git", :tag => "1.0.0" }
   s.platform     = :ios, '6.0'
   s.source_files = '*.{h,m}'
   s.requires_arc = true
