@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "ImageCache"
-  s.version      = "1.0"
+  s.version      = "1.0.0"
   s.summary      = "A shared cache class that saves UIImages to a Key/Value store."
   s.homepage     = "https://github.com/bennyguitar/ImageCache"
   s.license      = { :type => 'MIT', :file => 'LICENSE' }
