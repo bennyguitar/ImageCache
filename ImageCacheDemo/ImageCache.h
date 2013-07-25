@@ -17,6 +17,7 @@
 +(void)setImage:(UIImage *)image forKey:(NSString *)key;
 +(void)addOperation:(NSOperation *)operation;
 +(void)dumpCache;
++(void)dumpLeastRecentlyUsed:(int)count;
 @end
 
 

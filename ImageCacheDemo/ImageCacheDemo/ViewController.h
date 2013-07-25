@@ -9,10 +9,13 @@
 #import <UIKit/UIKit.h>
 #import "ImageCache.h"
 
-@interface ViewController : UIViewController
+@interface ViewController : UIViewController <UITextFieldDelegate>
 
 @property (weak, nonatomic) IBOutlet UIImageView *mainImageView;
+@property (weak, nonatomic) IBOutlet UITextField *dumpTextField;
+@property (nonatomic, assign) int count;
 
 - (IBAction)loadImage:(id)sender;
+- (IBAction)didSelectDumpCache:(id)sender;
 
 @end
