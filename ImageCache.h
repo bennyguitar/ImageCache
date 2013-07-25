@@ -17,11 +17,17 @@
 +(void)setImage:(UIImage *)image forKey:(NSString *)key;
 +(void)addOperation:(NSOperation *)operation;
 +(void)dumpCache;
++(void)dumpLeastRecentlyUsed:(int)count;
 @end
 
 
 @interface UIImageView (ImageCache)
 -(void)setImageFromURL:(NSURL *)url;
+@end
+
+
+@interface UIButton (ImageCache)
+-(void)setImageFromURL:(NSURL *)url forState:(UIControlState)state;
 @end
 
 

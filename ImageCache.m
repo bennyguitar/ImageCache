@@ -47,13 +47,14 @@ static ImageCache * _sharedCache = nil;
 
 +(UIImage *)imageForKey:(NSString *)key {
     if ([ImageCache sharedCache].ImageDictionary[key]) {
-        return [ImageCache sharedCache].ImageDictionary[key];
+        [[ImageCache sharedCache].ImageDictionary[key] setObject:[NSDate date] forKey:@"D"];
+        return [ImageCache sharedCache].ImageDictionary[key][@"I"];
     }
     return nil;
 }
 
 +(void)setImage:(UIImage *)image forKey:(NSString *)key {
-    [[ImageCache sharedCache].ImageDictionary setObject:image forKey:key];
+    [[ImageCache sharedCache].ImageDictionary setObject:[@{@"I":image,@"D":[NSDate date]} mutableCopy] forKey:key];
 }
 
 +(void)addOperation:(NSOperation *)operation {
@@ -62,6 +63,25 @@ static ImageCache * _sharedCache = nil;
 
 +(void)dumpCache {
     [ImageCache sharedCache].ImageDictionary = [@{} mutableCopy];
+}
+
++(void)dumpLeastRecentlyUsed:(int)count {
+    // If count > number of Images, set count = number of Images
+    count = count > [ImageCache sharedCache].ImageDictionary.allKeys.count ? [ImageCache sharedCache].ImageDictionary.allKeys.count : count;
+    
+    // Sort ImageCache by Date
+    NSMutableArray *allCachedObjects = [NSMutableArray array];
+    for (NSString *key in [ImageCache sharedCache].ImageDictionary.allKeys) {
+        [allCachedObjects addObject:@{@"K":key,@"Dict":[ImageCache sharedCache].ImageDictionary[key]}];
+    }
+    NSArray *sortedCache = [allCachedObjects sortedArrayUsingComparator:^NSComparisonResult(NSDictionary *a, NSDictionary *b){
+        return [a[@"Dict"][@"D"] compare:b[@"Dict"][@"D"]];
+    }];
+    
+    // Get Rid of Least Recently Used up to (int)count
+    for (int x = 0; x < count; x++) {
+        [[ImageCache sharedCache].ImageDictionary removeObjectForKey:sortedCache[x][@"K"]];
+    }
 }
 
 @end
