@@ -1,12 +1,13 @@
 ImageCache
 ==========
 
-A shared cache class that loads/saves UIImages from the web to a Key/Value store, and sets UI Elements with the image whenever it's loaded.
+A shared cache class that saves UIImages to a Key/Value store and sets UI Elements with the image whenever it's loaded. The class also implements LRU dumping for smart memory management.
 
 ## Set Up ##
 
 * Drag the included <code>ImageCache.{h,m}</code> into your project.
 * Import <code>ImageCache.h</code> into whatever class you will be loading images in.
+* **Requires ARC**
 
 ## How to Use ##
 
