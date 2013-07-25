@@ -66,8 +66,11 @@ static ImageCache * _sharedCache = nil;
 }
 
 +(void)dumpLeastRecentlyUsed:(int)count {
-    // If count > number of Images, set count = number of Images
-    count = count > [ImageCache sharedCache].ImageDictionary.allKeys.count ? [ImageCache sharedCache].ImageDictionary.allKeys.count : count;
+    // If count >= number of Images, dump the whole thing and exit
+    if (count >= [ImageCache sharedCache].ImageDictionary.allKeys.count) {
+        [ImageCache dumpCache];
+        return;
+    }
     
     // Sort ImageCache by Date
     NSMutableArray *allCachedObjects = [NSMutableArray array];
