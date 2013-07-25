@@ -43,6 +43,10 @@ There are two options provided for getting rid of items in the cache, either by 
 
 Ideally you would call these methods in the <code>didReceiveMemoryWarning</code> method of your ViewController or before entering the background in the App Delegate <code>applicationDidEnterBackground:(UIApplication *)application</code> method.
 
+## Design Caveats ##
+
+So one part of the design process for me was to remove extra-long method names and calls, and the other part was for the primary use of one ImageCache per App. To meet these guidelines, I created the ImageCache to only use class methods that operate on the <code>[ImageCache sharedCache]</code> instance behind the scenes. This means that the function calls end up being something like this <code>[ImageCache dumpCache]</code> instead of <code>[[ImageCache sharedCache] dumpCache]</code>, which may be more idiomatic Objective-C. If you would like to use multiple ImageCache classes (who knows, you might just want to) for a single application, I suggest turning those methods into instance methods and changing all mentions of <code>[ImageCache sharedCache]</code> to <code>self</code>. That should free you up to use multiple cache instances in your app.
+
 ## License ##
 
 This repository is licensed under the standard MIT License.
